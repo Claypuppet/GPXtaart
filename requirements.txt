@@ -1,0 +1,5 @@
+Django==2.2.3
+django-cors-headers==3.0.2
+djangorestframework==3.10.1
+psycopg2-binary==2.8.3
+pyserial==3.4
