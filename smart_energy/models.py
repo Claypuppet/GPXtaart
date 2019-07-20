@@ -12,6 +12,7 @@ class Meter(models.Model):
     cons_2 = models.DecimalField(max_digits=9, decimal_places=3)  # 1-0:1.8.2(123456.789*kWh)
     prod_1 = models.DecimalField(max_digits=9, decimal_places=3)  # 1-0:2.8.1(123456.789*kWh)
     prod_2 = models.DecimalField(max_digits=9, decimal_places=3)  # 1-0:2.8.2(123456.789*kWh)
+    tariff = models.SmallIntegerField(default=1)  # 0-0:96.14.0(0002)
     gas = models.DecimalField(max_digits=9, decimal_places=3)  # 1-0:2.8.2(123456.789*kWh)
 
     pow_fail = models.IntegerField(default=-1)  # 0-0:96.7.21(00004)
@@ -25,24 +26,38 @@ class Meter(models.Model):
 
     last_raw = models.TextField()
 
+    @property
+    def last_power_measurement(self):
+        return self.power_measurements.last()
+
+    @property
+    def last_gas_measurement(self):
+        return self.gas_measurements.last()
+
     def __str__(self):
         return "Meter %s" % self.sn_pow
 
 
 class PowerMeasurement(models.Model):
-    meter = models.ForeignKey(Meter, models.CASCADE, 'power_measurements')
+    meter = models.ForeignKey(Meter, models.CASCADE, related_name='power_measurements')
 
     moment = models.DateTimeField(editable=False)  # 0-0:1.0.0(101209113020W)
     tariff = models.SmallIntegerField(editable=False)  # 0-0:96.14.0(0002)
     consumption = models.DecimalField(max_digits=9, decimal_places=3, editable=False)  # 1-0:1.7.0(01.1 93*kW)
     production = models.DecimalField(max_digits=9, decimal_places=3, editable=False)  # 1-0:2.7.0(00.000*kW)
 
+    def __str__(self):
+        return "Measurement %s" % self.moment.strftime("%Y-%m-%d %H:%M:%S")
+
 
 class GasMeasurement(models.Model):
-    meter = models.ForeignKey(Meter, models.CASCADE, 'gas_measurements')
+    meter = models.ForeignKey(Meter, models.CASCADE, related_name='gas_measurements')
 
     moment = models.DateTimeField(editable=False)  # 0-1:24.2.1(101209110000W)
     consumption = models.DecimalField(max_digits=9, decimal_places=3, editable=False)  # 0-1:24.2.1(12785.123*m3)
+
+    def __str__(self):
+        return "Measurement %s" % self.moment.strftime("%Y-%m-%d %H:%M:%S")
 
 
 class ReadingContainer(object):
@@ -99,7 +114,25 @@ class ReadingContainer(object):
         self.gas_moment = None
 
     def _is_valid(self):
-        return True
+        defaults = ReadingContainer()
+        checks = [
+            self.version != defaults.version,
+            self.sn_pow != defaults.sn_pow,
+            self.sn_gas != defaults.sn_gas,
+            self.cons_1 != defaults.cons_1,
+            self.cons_2 != defaults.cons_2,
+            self.prod_1 != defaults.prod_1,
+            self.prod_2 != defaults.prod_2,
+            self.gas != defaults.gas,
+            self.pow_fail != defaults.pow_fail,
+            self.long_pow_fail != defaults.long_pow_fail,
+            self.power_moment != defaults.power_moment,
+            self.power_tariff != defaults.power_tariff,
+            self.power_consumption != defaults.power_consumption,
+            self.power_production != defaults.power_production,
+            self.gas_moment != defaults.gas_moment,
+        ]
+        return all(checks)
 
     def _meter_data(self):
         return {
@@ -111,6 +144,7 @@ class ReadingContainer(object):
             'prod_1': self.prod_1,
             'prod_2': self.prod_2,
             'gas': self.gas,
+            'tariff': self.power_tariff,
             'pow_fail': self.pow_fail,
             'long_pow_fail': self.long_pow_fail,
             'vol_sag_1': self.vol_sag_1,
