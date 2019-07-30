@@ -1,7 +1,10 @@
 import logging
 import time
 
-import serial
+from serial import Serial, SerialException
+from serial.tools import list_ports
+
+
 from django.core.management.base import BaseCommand, CommandError
 from smart_energy.models import ReadingContainer
 
@@ -15,7 +18,7 @@ class Command(BaseCommand):
             type=str,
             dest='port',
             help='Device location, e.g. /dev/ttyUSBx or COMx',
-            required=True
+            default=None
         )
         parser.add_argument(
             '-b', '--baud',
@@ -25,28 +28,42 @@ class Command(BaseCommand):
             default=9600
         )
 
+    def get_port(self, initial):
+        available_ports = list_ports.comports()
+        if len(available_ports) == 0:
+            return None
+        return next(port.device for port in available_ports if port.device == initial) or available_ports[0].device
+
     def handle(self, *args, **options):
-        port, baud = options.get('port'), options.get('baud')
-        ser = serial.Serial(port, baud)
+        initial_port, baud = options.get('port'), options.get('baud')
+        port = self.get_port(initial_port)
+        ser = Serial(port, baud)
 
         logger = logging.getLogger(__name__)
 
         reader = ReadingContainer()
-        print('Starting ser conn', port, baud)
 
         while 1:
             while not ser.is_open:
-                try:
-                    ser.open()
-                    logger.info('Serial connected', port, baud)
-                    print('Serial connected', port, baud)
-                except serial.SerialException as e:
-                    print('.', e)
-                    time.sleep(1)
+                port = self.get_port(initial_port)
+                if port:
+                    ser.setPort(port)
+                    try:
+                        ser.open()
+                        logger.info('Serial connected', port, baud)
+                        print('Serial connected', port, baud)
+                        break
+                    except SerialException as e:
+                        print('\n', e)
+                print('.', end='', flush=True)
+                time.sleep(5)
 
             try:
                 serial_line = ser.readline().decode("utf-8")
                 reader.parse_line(serial_line)
+                if reader.completed:
+                    reader.save()
+                    reader = ReadingContainer()
 
             except KeyboardInterrupt:
                 logger.info('Serial reader closed, keyboard interrupt')
@@ -54,7 +71,7 @@ class Command(BaseCommand):
                 ser.close()
                 break
 
-            except serial.SerialException as e:
+            except SerialException as e:
                 logger.info('Serial exception', e)
                 print('Serial exception', e)
                 ser.close()

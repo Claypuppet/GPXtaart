@@ -1,14 +1,23 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Login</title>
-</head>
-<body>
-<form method="post">
+{% extends 'base.html' %}
+
+{% block body %}
+
+<link rel="stylesheet" href="/static/css/login.css">
+<form class="form-signin text-center" method="post">
     {% csrf_token %}
-    {{ form.as_p }}
-    <input type="submit" value="Submit">
+    <img class="mb-4" src="/docs/4.3/assets/brand/bootstrap-solid.svg" alt="" width="72" height="72">
+    <h1 class="h3 mb-3 font-weight-normal">Please sign in</h1>
+    <label for="{{ form.username.id_for_label }}" class="sr-only">Username</label>
+    <input name="{{ form.username.html_name }}" type="text" id="{{ form.username.id_for_label }}" required=""
+           class="form-control" placeholder="Username" autofocus="">
+    <label for="{{ form.password.id_for_label }}" class="sr-only">Password</label>
+    <input name="{{ form.password.html_name }}" type="password" id="{{ form.password.id_for_label }}"
+           class="form-control" placeholder="Password" required="">
+
+    {{ form.non_field_errors }}
+
+    <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
+    <p class="mt-5 mb-3 text-muted">©GPX 2019</p>
 </form>
-</body>
-</html>
+
+{% endblock %}
