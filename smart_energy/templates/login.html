@@ -2,22 +2,36 @@
 
 {% block body %}
 
-<link rel="stylesheet" href="/static/css/login.css">
-<form class="form-signin text-center" method="post">
-    {% csrf_token %}
-    <img class="mb-4" src="/docs/4.3/assets/brand/bootstrap-solid.svg" alt="" width="72" height="72">
-    <h1 class="h3 mb-3 font-weight-normal">Please sign in</h1>
-    <label for="{{ form.username.id_for_label }}" class="sr-only">Username</label>
-    <input name="{{ form.username.html_name }}" type="text" id="{{ form.username.id_for_label }}" required=""
-           class="form-control" placeholder="Username" autofocus="">
-    <label for="{{ form.password.id_for_label }}" class="sr-only">Password</label>
-    <input name="{{ form.password.html_name }}" type="password" id="{{ form.password.id_for_label }}"
-           class="form-control" placeholder="Password" required="">
+    <link rel="stylesheet" href="/static/css/login.css">
 
-    {{ form.non_field_errors }}
 
-    <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
-    <p class="mt-5 mb-3 text-muted">©GPX 2019</p>
-</form>
+    <form class="form-signin" method="post">
+        {% csrf_token %}
+        <div class="text-center mb-4">
+            <img class="mb-4" src="/static/assets/logo.svg" alt="" width="72" height="72">
+            <h1 class="h3 mb-3 font-weight-normal">Sign in</h1>
+        </div>
+
+        <div class="form-label-group">
+            <input name="{{ form.username.html_name }}" type="text" id="{{ form.username.id_for_label }}"
+                   class="form-control" placeholder="Username" required="" autofocus="">
+            <label for="{{ form.username.id_for_label }}">Username</label>
+        </div>
+
+        <div class="form-label-group">
+            <input name="{{ form.password.html_name }}" type="password" id="{{ form.password.id_for_label }}"
+                   class="form-control" placeholder="Password" required="">
+            <label for="{{ form.password.id_for_label }}">Password</label>
+        </div>
+
+        <div class="checkbox mb-3 text-center">
+            <label>
+                <input type="checkbox" value="remember-me"> Remember me
+            </label>
+        </div>
+
+        <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
+        <p class="mt-5 mb-3 text-muted text-center">© GPX  2019</p>
+    </form>
 
 {% endblock %}
