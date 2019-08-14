@@ -46,6 +46,7 @@ class Command(BaseCommand):
         while 1:
             while not ser.is_open:
                 port = self.get_port(initial_port)
+                print('.', end='', flush=True)
                 if port:
                     ser.setPort(port)
                     try:
@@ -55,7 +56,6 @@ class Command(BaseCommand):
                         break
                     except SerialException as e:
                         print('\n', e)
-                print('.', end='', flush=True)
                 time.sleep(5)
 
             try:

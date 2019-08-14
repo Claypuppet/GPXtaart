@@ -1,14 +1,14 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block body %}
 
-    <link rel="stylesheet" href="/static/css/login.css">
-
+    <link rel="stylesheet" href="{% static "css/login.css" %}">
 
     <form class="form-signin" method="post">
         {% csrf_token %}
         <div class="text-center mb-4">
-            <img class="mb-4" src="/static/assets/logo.svg" alt="" width="72" height="72">
+            <img class="mb-4" src="{% static "assets/logo.svg" %}" alt="" width="72" height="72">
             <h1 class="h3 mb-3 font-weight-normal">Sign in</h1>
         </div>
 

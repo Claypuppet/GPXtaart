@@ -117,10 +117,6 @@ class ReadingContainer(models.Model):
     # Gas measurement
     gas_moment = models.DateTimeField()  # 0-1:24.2.1(101209110000W)
 
-    @property
-    def gas_consumption(self):
-        return 0
-
     def save(self, **kwargs):
         try:
             self.clean_fields()
@@ -155,9 +151,13 @@ class ReadingContainer(models.Model):
                 consumption=self.power_consumption,
                 production=self.power_production,
             )
-            meter.gas_measurements.create(
+            gas_consumption = self.gas - meter.gas
+            meter.gas_measurements.get_or_create(
                 moment=self.gas_moment,
-                consumption=self.gas_consumption,
+                defaults={
+                    'consumption': gas_consumption,
+                    'moment': self.gas_moment,
+                }
             )
         except ValidationError as e:
             print('not saved', e)

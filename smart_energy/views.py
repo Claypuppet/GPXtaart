@@ -19,6 +19,14 @@ class DashboardPage(LoginRequiredMixin, View):
         })
 
 
+class DashboardPowerPage(DashboardPage):
+    template_name = 'dashboard_power.html'
+
+
+class DashboardGasPage(DashboardPage):
+    template_name = 'dashboard_gas.html'
+
+
 class ApiMeterList(ListAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = MeterListSerializer
