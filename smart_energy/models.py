@@ -82,6 +82,7 @@ class ReadingContainer(models.Model):
 
     _df = r"\((?P<year>\d{2})(?P<month>\d{2})(?P<day>\d{2})(?P<hour>\d{2})(?P<min>\d{2})(?P<sec>\d{2})(?P<ws>W|S)\)"
 
+    started = False
     completed = False
 
     last_raw = models.TextField()
@@ -118,6 +119,8 @@ class ReadingContainer(models.Model):
     gas_moment = models.DateTimeField()  # 0-1:24.2.1(101209110000W)
 
     def save(self, **kwargs):
+        if not self.started or not self.completed:
+            return
         try:
             self.clean_fields()
             meter, created = Meter.objects.update_or_create(
@@ -163,6 +166,8 @@ class ReadingContainer(models.Model):
             print('not saved', e)
             for field, errors in e.error_dict.items():
                 print(field, errors, getattr(self, field))
+        except ValueError as e:
+            print('not saved', e)
 
     def parse_line(self, line: str):
         self.last_raw += line
@@ -229,3 +234,5 @@ class ReadingContainer(models.Model):
             self.gas = Decimal(re.search(r"\((\d+\.\d+)\*m3\)", line)[1])
         elif line.startswith('!'):
             self.completed = True
+        elif line.startswith('/'):
+            self.started = True
