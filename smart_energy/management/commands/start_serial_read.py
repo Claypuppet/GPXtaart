@@ -27,6 +27,10 @@ class Command(BaseCommand):
             help='Baudrate (default 9600)',
             default=9600
         )
+        parser.add_argument(
+            '--dry',
+            dest='dry',
+            action='store_true')
 
     def get_port(self, initial):
         available_ports = list_ports.comports()
@@ -35,7 +39,7 @@ class Command(BaseCommand):
         return next(port.device for port in available_ports if port.device == initial) or available_ports[0].device
 
     def handle(self, *args, **options):
-        initial_port, baud = options.get('port'), options.get('baud')
+        initial_port, baud, dry = options.get('port'), options.get('baud'), options.get('dry')
         port = self.get_port(initial_port)
         ser = Serial(port, baud)
 
@@ -62,7 +66,10 @@ class Command(BaseCommand):
                 serial_line = ser.readline().decode("utf-8")
                 reader.parse_line(serial_line)
                 if reader.completed:
-                    reader.save()
+                    if dry:
+                        print(reader.last_raw)
+                    else:
+                        reader.save()
                     reader = ReadingContainer()
 
             except KeyboardInterrupt:
