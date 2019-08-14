@@ -24,8 +24,8 @@ class Command(BaseCommand):
             '-b', '--baud',
             dest='baud',
             type=str,
-            help='Baudrate (default 9600)',
-            default=9600
+            help='Baudrate (default 115200)',
+            default=115200
         )
         parser.add_argument(
             '--dry',

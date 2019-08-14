@@ -20,11 +20,11 @@ class MeasurementManager(models.Manager):
             if last_moment.minute is not moment.minute:
                 start_moment = last_moment.replace(second=0)
                 qs = meter.gas_measurements.filter(moment__gte=start_moment, moment__lt=moment)
-                avg_min_consumption = qs.aggregate(Avg('consumption')).values()[0]
+                avg_min_consumption = list(qs.aggregate(Avg('consumption')).values())[0]
             if last_moment.hour is not moment.hour:
                 start_moment = last_moment.replace(minute=0, second=0)
                 qs = meter.gas_measurements.filter(moment__gte=start_moment, moment__lt=moment)
-                avg_min_consumption = qs.aggregate(Avg('consumption')).values()[0]
+                avg_min_consumption = list(qs.aggregate(Avg('consumption')).values())[0]
         return super().create(
             avg_min_consumption=avg_min_consumption,
             avg_hour_consumption=avg_hour_consumption,
@@ -49,11 +49,11 @@ class PowerMeasurementManager(models.Manager):
             if last_moment.minute is not moment.minute:
                 start_moment = last_moment.replace(second=0)
                 qs = meter.power_measurements.filter(moment__gte=start_moment, moment__lt=moment)
-                avg_min_production = qs.aggregate(Avg('production')).values()[0]
+                avg_min_production = list(qs.aggregate(Avg('production')).values())[0]
             if last_moment.hour is not moment.hour:
                 start_moment = last_moment.replace(minute=0, second=0)
                 qs = meter.power_measurements.filter(moment__gte=start_moment, moment__lt=moment)
-                avg_min_production = qs.aggregate(Avg('production')).values()[0]
+                avg_min_production = list(qs.aggregate(Avg('production')).values())[0]
         return super().create(
             avg_min_consumption=avg_min_production,
             avg_hour_consumption=avg_hour_production,
