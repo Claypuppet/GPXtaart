@@ -45,12 +45,77 @@
                     <h1 class="h1">Dashboard</h1>
                 </div>
 
-                <label for="meter-select">Select a meter</label>
-                <select class="custom-select d-block w-100" id="meter-select" required="">
-                    {% for meter in meters %}
-                    <option value="{{ meter.id }}">{{ meter.id }} ({{ meter.sn_pow }})</option>
-                    {% endfor %}
-                </select>
+                <div class="row">
+                    <div class="col-md-12">
+                        <label for="meter-select">Select a meter</label>
+                        <select class="custom-select d-block w-100" id="meter-select" required="">
+                            {% for meter in meters %}
+                                <option value="{{ meter.id }}">{{ meter.id }} ({{ meter.sn_pow }})</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+
+                {% for meter in meters %}
+                    <div class="row meter-detail" id="meter-{{ meter.id }}">
+                        <div class="col-md-6">
+                            <h2>Meter info</h2>
+                            <table class="table">
+                                <thead>
+                                <tr>
+                                    <th scope="col">Property</th>
+                                    <th scope="col">Current</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr>
+                                    <th>Version</th>
+                                    <td>{{ meter.version }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Serial Number power</th>
+                                    <td>{{ meter.sn_pow }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Serial Number gas</th>
+                                    <td>{{ meter.sn_gas }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Energy Consumption 1</th>
+                                    <td>{{ meter.cons_1 }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Energy Consumption 2</th>
+                                    <td>{{ meter.cons_2 }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Energy Production 1</th>
+                                    <td>{{ meter.prod_1 }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Energy Production 2</th>
+                                    <td>{{ meter.prod_2 }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Current Tariff</th>
+                                    <td>{{ meter.tariff }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Gas</th>
+                                    <td>{{ meter.gas }}</td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            <h3>Last raw:</h3>
+                            <p>
+                                {{ meter.last_raw | linebreaksbr }}
+                            </p>
+                        </div>
+                    </div>
+                {% endfor %}
+
                 {% block main %}
                 {% endblock %}
             </main>
